@@ -3,7 +3,8 @@
     "references": [
         "Zenject-TestFramework",
         "ShirTime",
-        "Zenject"
+        "Zenject",
+        "UniRx"
     ],
     "optionalUnityReferences": [
         "TestAssemblies"

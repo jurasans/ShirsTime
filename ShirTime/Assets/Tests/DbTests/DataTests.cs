@@ -4,52 +4,97 @@ using ShirTime.Installers;
 using LiteDB;
 using System;
 using System.Linq;
-using System.Collections.Generic;
+using UniRx;
+using System.Threading.Tasks;
+
 [TestFixture]
 public class DataTests : ZenjectUnitTestFixture
 {
-    
-
-    [SetUp]
-    public void SetupTest()
-    {
-        DataInstaller.InstallDatabase(Container);
-        DataInstaller.Install(Container);
-    }
     [Inject]
     IDateSave dataSave;
     [Inject]
-    LiteDB.LiteRepository repo;
+    LiteRepository repo;
+    public override void Setup()
+    {
+        base.Setup();
+        DataInstaller.InstallDatabase(Container);
+        DataInstaller.Install(Container);
+        Container.Inject(this);
+    }
 
-    [Test]
+    [Test(Author ="ilia" , Description ="will check all the edge cases for starting a session")]
     public void StartSession()
     {
         //todo:will check if there is an entry for today. if there is then it will not insert new data entry.
-
-        dataSave.StartTimer();
-        //var timeEntry = repo.Fetch<TimeEntry>().OrderBy(x=>x.EntryTimeStart).First();
-        //Assert.True(timeEntry.HasValue && !timeEntry.EntryTimeEnd.HasValue,"added wrong data");
-        //Assert.True((timeEntry.EntryTimeStart.Value-DateTime.Now).Seconds<2,"too much time passed between start and test.");
+        var result = dataSave.StartTimer().Wait();
+        var timeEntry = repo.Fetch<TimeEntry>().OrderBy(x => x.EntryTimeStart).First();
+        Assert.True(timeEntry.EntryTimeStart.HasValue && !timeEntry.EntryTimeEnd.HasValue, "added wrong data");
+        Assert.True((timeEntry.EntryTimeStart.Value - DateTime.Now).Seconds < 2, "too much time passed between start and test.");
+        Assert.True(result == OperationResult.OK);
     }
     [Test]
     public void StopSession()
     {
-        //todo:will check if there is an entry for today. if there is then it will insert new date in the enddate..
-        //if not , think about what happens... maybe some result type for operation needs to be returned for better ui indications and other stuff.
+        dataSave.StartTimer().Wait();
+        var sequence = dataSave.StopTimer().Wait();
+        Assert.True(sequence == OperationResult.OK, "sequence end Operation state is Incorrect");
+        var entry = repo.Fetch<TimeEntry>().FindLast(x => true);
+        Assert.True(entry.EntryTimeEnd.HasValue && entry.EntryTimeStart.HasValue, "data entry was not totally successful");
 
-        dataSave.StopTimer();
-        //var timeEntry = repo.Fetch<TimeEntry>().Max(x=>x.EntryTimeStart.Value);
-        //Assert.True(timeEntry.EntryTimeStart.HasValue && !timeEntry.EntryTimeEnd.HasValue, "added wrong data");
-        //Assert.True((timeEntry.EntryTimeStart.Value - DateTime.Now).Seconds < 2, "too much time passed between start and test.");
     }
-    
     [Test]
-    public void EnterCustomDate()
+    public void StartSessionOnTopOfSession()
+    {
+        dataSave.StartTimer().Wait();
+        var result = dataSave.StartTimer().Wait();
+
+        Assert.True(result == OperationResult.SessionInProgress, $"wrong operation result after starting timer for the second time. expected:{OperationResult.SessionInProgress}, got : {result}");
+        Assert.True(repo.Fetch<TimeEntry>().OrderBy(x => x.EntryTimeStart).Count() == 1, "more then one entry was found where 1 was required.");
+
+    }
+
+    [Test]
+    public void StopSessionWithoutStarting()
+    {
+        var stop = dataSave.StopTimer().Wait();
+        Assert.True(repo.Fetch<TimeEntry>().FindAll(x => true).Count == 0, "found entry where there shouldnt be any");
+        Assert.True(stop == OperationResult.NoStartedSession, $"operation result unexcpected.is:{stop}");
+
+    }
+
+    [Test]
+    public void DifferenceBetweenCustomDatesTooLarge()
     {
         //todo: will check if a custom parameter actually gets inserted. if the same day is inserted then it will update that day's entry.
+        var tooBigDifference = dataSave.EnterCustomTime(DateTime.MinValue, DateTime.Now).Wait();
+        Assert.True(tooBigDifference == OperationResult.DifferenceBetweenDatesTooBig);
+
     }
-    [TearDown]
-    public void TearDown()
+
+    [Test]
+    public void EndedBeforeItStartedCustomDateTest()
     {
+        var endedBeforeStarted = dataSave.EnterCustomTime(DateTime.MaxValue, DateTime.Now).Wait();
+        Assert.True(endedBeforeStarted == OperationResult.EndedBeforeItStarted);
+    }
+    //todo
+    [Test]
+    public void EnterValidCustomDate()
+    {
+        var customDate = dataSave.EnterCustomTime(DateTime.Now, DateTime.Now.AddHours(5)).Wait();
+        Assert.True(customDate == OperationResult.OK);
+    }
+
+    public override void Teardown()
+    {
+        repo.Database.DropCollection("TimeEntry");
+        base.Teardown();
+
+    }
+
+    [OneTimeTearDown]
+    public void TearDownTests()
+    {
+        repo.Database.Dispose();
     }
 }
