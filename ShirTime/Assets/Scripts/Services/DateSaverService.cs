@@ -1,15 +1,14 @@
 ﻿using System;
-using System.Collections.Generic;
 using LiteDB;
 
-internal class DateSaverService : IDateSave
+internal class DateSaverService : IDateSave , IDisposable
 {
     private LiteDatabase db;
     private LiteCollection<TimeEntry> times;
 
-    public DateSaverService(ConnectionString conString)
+    public DateSaverService(LiteDatabase db)
     {
-        db = new LiteDB.LiteDatabase(conString);
+        this.db = db;
 
         times = db.GetCollection<TimeEntry>();
     }
@@ -25,11 +24,17 @@ internal class DateSaverService : IDateSave
 
     public void StartTimer()
     {
+        times.Insert(new TimeEntry(DateTime.Now));
     }
 
     public void StopTimer()
     {
     }
+    public void Dispose()
+    {
+        db.Dispose();
+    }
+
 }
 
 [Serializable]

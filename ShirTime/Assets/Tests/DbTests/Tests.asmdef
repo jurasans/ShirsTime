@@ -1,0 +1,16 @@
+{
+    "name": "DBTests",
+    "references": [
+        "Zenject-TestFramework",
+        "ShirTime",
+        "Zenject"
+    ],
+    "optionalUnityReferences": [
+        "TestAssemblies"
+    ],
+    "includePlatforms": [
+        "Editor"
+    ],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false
+}

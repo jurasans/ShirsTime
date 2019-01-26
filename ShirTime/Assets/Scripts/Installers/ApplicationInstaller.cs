@@ -1,15 +1,19 @@
-using LiteDB;
-using UnityEngine;
-using Zenject;
-
-public class ApplicationInstaller : MonoInstaller
+﻿namespace ShirTime.Installers
 {
-    [SerializeField]
-    private string databaseName;
-    public override void InstallBindings()
+    using UnityEngine;
+    using Zenject;
+
+    public class ApplicationInstaller : MonoInstaller
     {
-        Container.Bind<IDateSave>().To<DateSaverService>().AsSingle().NonLazy();
-        Container.BindInterfacesAndSelfTo<TimeKeepingManager>().AsSingle().NonLazy();
-        Container.Bind<ConnectionString>().FromInstance(new ConnectionString(Application.persistentDataPath+"/"+databaseName+".db"));
+        [SerializeField]
+        private string databaseName;
+        public override void InstallBindings()
+        {
+            Container.BindInterfacesAndSelfTo<TimeKeepingManager>().AsSingle().NonLazy();
+            DataInstaller.InstallDatabase(Container, databaseName);
+            DataInstaller.Install(Container);
+        }
+
+
     }
 }

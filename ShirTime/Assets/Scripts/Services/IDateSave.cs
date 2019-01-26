@@ -1,6 +1,6 @@
 ﻿using System;
 
-internal interface IDateSave
+public interface IDateSave
 {
     void StartTimer();
     void StopTimer();
