@@ -6,16 +6,32 @@ using UnityEngine;
 
 internal class DateSaverService : IDateSave, IDisposable
 {
-    public const string TIME_ENTRY_TABLE = "time";
     private LiteDatabase db;
     private LiteRepository repo;
     private LiteCollection<TimeEntry> times;
-
+    public DateTime? CurrentSessionStartTime
+    {
+        get { return currentSession = currentSession ?? UpdateCurrentSessionState(); }
+    }
+    private DateTime? currentSession;
     public DateSaverService(LiteDatabase db)
     {
         this.db = db;
         this.repo = new LiteRepository(db);
         times = db.GetCollection<TimeEntry>();
+        UpdateCurrentSessionState();
+
+    }
+
+    private DateTime? UpdateCurrentSessionState()
+    {
+        var currentTimeEntry = repo.Fetch<TimeEntry>()
+                    .FirstOrDefault(x => x.EntryTimeStart.HasValue && x.EntryTimeStart.Value.Date == DateTime.Now.Date);
+        if (currentTimeEntry != null && currentTimeEntry.EntryTimeStart.HasValue)
+        {
+            return currentSession = currentTimeEntry.EntryTimeStart.Value;
+        }
+        return null;
     }
 
     public IObservable<OperationResult> StartTimer()
@@ -43,7 +59,19 @@ internal class DateSaverService : IDateSave, IDisposable
 
     public IObservable<OperationResult> EnterCustomTime(DateTime start, DateTime end)
     {
-        throw new NotImplementedException();
+        return Observable.Start(() =>
+        {
+            if ((end - start).TotalHours < 0)
+            {
+                return OperationResult.EndedBeforeItStarted;
+            }
+            if (end.Date.DayOfWeek != start.Date.DayOfWeek)
+            {
+                return OperationResult.DifferenceBetweenDatesTooBig;
+            }
+            repo.Insert(new TimeEntry { EntryTimeEnd = end, EntryTimeStart = start });
+            return OperationResult.OK;
+        });
     }
 
     public IObservable<OperationResult> modifyEntryStartingAt(DateTime startTime)

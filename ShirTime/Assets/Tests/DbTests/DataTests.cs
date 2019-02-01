@@ -49,10 +49,30 @@ public class DataTests : ZenjectUnitTestFixture
         var result = dataSave.StartTimer().Wait();
 
         Assert.True(result == OperationResult.SessionInProgress, $"wrong operation result after starting timer for the second time. expected:{OperationResult.SessionInProgress}, got : {result}");
-        Assert.True(repo.Fetch<TimeEntry>().OrderBy(x => x.EntryTimeStart).Count() == 1, "more then one entry was found where 1 was required.");
+        Assert.True(repo.Fetch<TimeEntry>().Count() == 1, "more then one entry was found where 1 was required.");
 
     }
+    [Test]
+    public void GetDayEntry()
+    {
+        dataSave.StartTimer().Wait();
+        Assert.True( dataSave.CurrentSessionStartTime.HasValue , "session started but not recognized");
+        dataSave.StopTimer().Wait();
+        Assert.False(dataSave.CurrentSessionStartTime.HasValue);
+    }
+    [Test]
+    public void StartedNewSessionAfterClosing()
+    {
+        dataSave.StartTimer().Wait();
+        dataSave.StopTimer().Wait();
+        Assert.True(repo.Fetch<TimeEntry>().Count() == 1, "more then one entry was found where 1 was required.");
+        var result = dataSave.StartTimer().Wait();
 
+        Assert.True(result == OperationResult.OK, $"returned {result} for starting new session at the same day.");
+        Assert.True(repo.Fetch<TimeEntry>().Count()==2, "newly started session in the same day, did not open.");
+        Assert.True(repo.Fetch<TimeEntry>().All(x=>x.EntryTimeStart.HasValue) && !repo.Fetch<TimeEntry>().All(x=>x.EntryTimeEnd.HasValue),"did not make sure starting a new session would no close both for the day.");
+        
+    }
     [Test]
     public void StopSessionWithoutStarting()
     {
@@ -75,13 +95,15 @@ public class DataTests : ZenjectUnitTestFixture
     public void EndedBeforeItStartedCustomDateTest()
     {
         var endedBeforeStarted = dataSave.EnterCustomTime(DateTime.MaxValue, DateTime.Now).Wait();
+        Assert.True(repo.Fetch<TimeEntry>().FindAll(x => true).Count == 0, "found entry where there shouldnt be any");
         Assert.True(endedBeforeStarted == OperationResult.EndedBeforeItStarted);
     }
     //todo
     [Test]
     public void EnterValidCustomDate()
     {
-        var customDate = dataSave.EnterCustomTime(DateTime.Now, DateTime.Now.AddHours(5)).Wait();
+        var customDate = dataSave.EnterCustomTime(DateTime.Now, DateTime.Now.AddMilliseconds(5)).Wait();
+        Assert.True(repo.Fetch<TimeEntry>().FindAll(x => true).Count > 0, "didnt find entry where there should be");
         Assert.True(customDate == OperationResult.OK);
     }
 
