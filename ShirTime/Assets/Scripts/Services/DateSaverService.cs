@@ -13,6 +13,9 @@ internal class DateSaverService : IDateSave, IDisposable
     {
         get { return currentSession = currentSession ?? UpdateCurrentSessionState(); }
     }
+
+    public TimeEntry CurrentOpenSession { get;private set;}
+
     private DateTime? currentSession;
     public DateSaverService(LiteDatabase db)
     {
@@ -25,8 +28,7 @@ internal class DateSaverService : IDateSave, IDisposable
 
     private DateTime? UpdateCurrentSessionState()
     {
-        var currentTimeEntry = repo.Fetch<TimeEntry>()
-                    .FirstOrDefault(x => x.EntryTimeStart.HasValue && x.EntryTimeStart.Value.Date == DateTime.Now.Date);
+        var currentTimeEntry = GetOpenSession();
         if (currentTimeEntry != null && currentTimeEntry.EntryTimeStart.HasValue)
         {
             return currentSession = currentTimeEntry.EntryTimeStart.Value;
@@ -34,18 +36,29 @@ internal class DateSaverService : IDateSave, IDisposable
         return null;
     }
 
+    public TimeEntry GetOpenSession()
+    {
+                
+        return CurrentOpenSession = repo.Fetch<TimeEntry>()
+                            .FirstOrDefault(x =>
+                            x.EntryTimeStart.HasValue
+                            && x.EntryTimeStart.Value.Date == DateTime.Now.Date
+                            && !x.EntryTimeEnd.HasValue);
+    }
+
     public IObservable<OperationResult> StartTimer()
     {
         return Observable.Start(() =>
         {
-            var sessionStarted = repo.Fetch<TimeEntry>().Exists(x => x.EntryTimeStart.HasValue && x.EntryTimeStart.Value.Date == DateTime.Now.Date);
-            if (sessionStarted)
+            var sessionStarted = GetOpenSession();
+            if (sessionStarted != null)
             {
                 return OperationResult.SessionInProgress;
             }
             else
             {
-                var newDoc = times.Insert(new TimeEntry { EntryTimeStart = DateTime.Now });
+                var newDoc = times.Insert(CurrentOpenSession= new TimeEntry { EntryTimeStart = DateTime.Now });
+                CurrentOpenSession.Id= newDoc;
                 return OperationResult.OK;
             }
         }
@@ -57,28 +70,30 @@ internal class DateSaverService : IDateSave, IDisposable
         db.Dispose();
     }
 
-    public IObservable<OperationResult> EnterCustomTime(DateTime start, DateTime end)
+    public IObservable<Tuple<OperationResult, TimeEntry>> EnterNewCustomTimeEntry(DateTime start, DateTime end)
     {
+        TimeEntry entry = null;
+
         return Observable.Start(() =>
         {
             if ((end - start).TotalHours < 0)
             {
-                return OperationResult.EndedBeforeItStarted;
+                return new Tuple<OperationResult, TimeEntry>(OperationResult.EndedBeforeItStarted, null);
             }
             if (end.Date.DayOfWeek != start.Date.DayOfWeek)
             {
-                return OperationResult.DifferenceBetweenDatesTooBig;
+                return new Tuple<OperationResult, TimeEntry>(OperationResult.DifferenceBetweenDatesTooBig, null);
             }
-            repo.Insert(new TimeEntry { EntryTimeEnd = end, EntryTimeStart = start });
-            return OperationResult.OK;
-        });
-    }
+            var id = repo.Insert<TimeEntry>(entry = new TimeEntry
+            {
+                EntryTimeEnd = end,
+                EntryTimeStart = start
+            });
 
-    public IObservable<OperationResult> modifyEntryStartingAt(DateTime startTime)
-    {
-        throw new NotImplementedException();
+            entry.Id = id;
+            return new Tuple<OperationResult, TimeEntry>(OperationResult.OK, entry);
+        }, Scheduler.ThreadPool);
     }
-
 
     public IObservable<OperationResult> StopTimer()
     {
@@ -92,9 +107,21 @@ internal class DateSaverService : IDateSave, IDisposable
             {
                 var entry = repo.Fetch<TimeEntry>().First(x => x.EntryTimeStart.Value.Date == DateTime.Now.Date);
                 entry.EntryTimeEnd = DateTime.Now;
+                currentSession = null;
                 return repo.Update(entry) ? OperationResult.OK : OperationResult.NoStartedSession;
             }
         }, Scheduler.ThreadPool);
+    }
+
+    public IObservable<OperationResult> ModifyEntry(TimeEntry entry, DateTime newStart, DateTime newEnd)
+    {
+        return Observable.Start(() =>
+        {
+            entry.EntryTimeStart = newStart;
+            entry.EntryTimeEnd = newEnd;
+            return repo.Update(entry) ? OperationResult.OK : OperationResult.UnexcpectedError;
+        }
+        , Scheduler.ThreadPool);
     }
 }
 

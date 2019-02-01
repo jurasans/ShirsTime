@@ -3,12 +3,11 @@
 public interface IDateSave
 {
     DateTime? CurrentSessionStartTime { get; }
-
+    TimeEntry CurrentOpenSession { get;}
     IObservable<OperationResult> StartTimer();
     IObservable<OperationResult> StopTimer();
-    IObservable<OperationResult> EnterCustomTime(DateTime start, DateTime end);
-    IObservable<OperationResult> modifyEntryStartingAt(DateTime startTime);
-
+    IObservable<Tuple<OperationResult,TimeEntry>> EnterNewCustomTimeEntry(DateTime start, DateTime end);
+    IObservable<OperationResult> ModifyEntry(TimeEntry entry, DateTime start, DateTime end);
 }
 public enum OperationResult
 {
@@ -16,5 +15,6 @@ public enum OperationResult
     SessionInProgress,
     NoStartedSession,
     DifferenceBetweenDatesTooBig,
-    EndedBeforeItStarted
+    EndedBeforeItStarted,
+    UnexcpectedError
 }

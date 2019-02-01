@@ -58,7 +58,7 @@ public class DataTests : ZenjectUnitTestFixture
         dataSave.StartTimer().Wait();
         Assert.True( dataSave.CurrentSessionStartTime.HasValue , "session started but not recognized");
         dataSave.StopTimer().Wait();
-        Assert.False(dataSave.CurrentSessionStartTime.HasValue);
+        Assert.False(dataSave.CurrentSessionStartTime.HasValue, "stopping the session leaves closed session remains.");
     }
     [Test]
     public void StartedNewSessionAfterClosing()
@@ -86,27 +86,45 @@ public class DataTests : ZenjectUnitTestFixture
     public void DifferenceBetweenCustomDatesTooLarge()
     {
         //todo: will check if a custom parameter actually gets inserted. if the same day is inserted then it will update that day's entry.
-        var tooBigDifference = dataSave.EnterCustomTime(DateTime.MinValue, DateTime.Now).Wait();
-        Assert.True(tooBigDifference == OperationResult.DifferenceBetweenDatesTooBig);
+        var tooBigDifference = dataSave.EnterNewCustomTimeEntry(DateTime.MinValue, DateTime.Now).Wait();
+        Assert.True(tooBigDifference.Item1 == OperationResult.DifferenceBetweenDatesTooBig);
 
     }
 
     [Test]
     public void EndedBeforeItStartedCustomDateTest()
     {
-        var endedBeforeStarted = dataSave.EnterCustomTime(DateTime.MaxValue, DateTime.Now).Wait();
+        var endedBeforeStarted = dataSave.EnterNewCustomTimeEntry(DateTime.MaxValue, DateTime.Now).Wait();
         Assert.True(repo.Fetch<TimeEntry>().FindAll(x => true).Count == 0, "found entry where there shouldnt be any");
-        Assert.True(endedBeforeStarted == OperationResult.EndedBeforeItStarted);
+        Assert.True(endedBeforeStarted.Item1 == OperationResult.EndedBeforeItStarted);
     }
-    //todo
     [Test]
     public void EnterValidCustomDate()
     {
-        var customDate = dataSave.EnterCustomTime(DateTime.Now, DateTime.Now.AddMilliseconds(5)).Wait();
+        var customDate = dataSave.EnterNewCustomTimeEntry(DateTime.Now, DateTime.Now.AddMilliseconds(5)).Wait();
         Assert.True(repo.Fetch<TimeEntry>().FindAll(x => true).Count > 0, "didnt find entry where there should be");
-        Assert.True(customDate == OperationResult.OK);
+        Assert.True(customDate.Item1 == OperationResult.OK);
     }
+    [Test]
+    public void ModifyEntry()
+    {
+        dataSave.StartTimer().Wait();
+        var entry = dataSave.CurrentOpenSession;
+        Assert.False(entry==null,"current open session is null while trying modify session");
+        dataSave.StopTimer().Wait();
+        Assert.True(dataSave.CurrentOpenSession== null, "current session is not closed!");
+        var res = dataSave.ModifyEntry(entry,DateTime.Now,DateTime.Now.AddMilliseconds(4)).Wait();
+        Assert.True(res==OperationResult.OK);
+        Assert.True(
+            repo.Fetch<TimeEntry>()
+            .Where(x=>(x.EntryTimeEnd.Value-x.EntryTimeStart.Value)
+            .Milliseconds == 4)
+            .Count()!=0,
+            "did not find any modified entries");
 
+
+        
+    }
     public override void Teardown()
     {
         repo.Database.DropCollection("TimeEntry");
