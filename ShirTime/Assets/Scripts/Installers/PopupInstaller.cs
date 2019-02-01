@@ -6,7 +6,7 @@
     {
         public override void InstallBindings()
         {
-            Container.Bind<PopupSystem>().AsSingle().NonLazy();
+            Container.BindInterfacesAndSelfTo<PopupSystem>().AsSingle().NonLazy();
         }
     }
 }

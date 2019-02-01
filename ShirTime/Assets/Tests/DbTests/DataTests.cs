@@ -6,8 +6,9 @@ using System;
 using System.Linq;
 using UniRx;
 using System.Threading.Tasks;
+using UnityEngine;
 
-[TestFixture]
+[TestFixture(Category ="data")]
 public class DataTests : ZenjectUnitTestFixture
 {
     [Inject]
@@ -52,6 +53,7 @@ public class DataTests : ZenjectUnitTestFixture
         Assert.True(repo.Fetch<TimeEntry>().Count() == 1, "more then one entry was found where 1 was required.");
 
     }
+
     [Test]
     public void GetDayEntry()
     {
@@ -60,6 +62,7 @@ public class DataTests : ZenjectUnitTestFixture
         dataSave.StopTimer().Wait();
         Assert.False(dataSave.CurrentSessionStartTime.HasValue, "stopping the session leaves closed session remains.");
     }
+
     [Test]
     public void StartedNewSessionAfterClosing()
     {
@@ -73,6 +76,7 @@ public class DataTests : ZenjectUnitTestFixture
         Assert.True(repo.Fetch<TimeEntry>().All(x => x.EntryTimeStart.HasValue) && !repo.Fetch<TimeEntry>().All(x => x.EntryTimeEnd.HasValue), "did not make sure starting a new session would no close both for the day.");
 
     }
+
     [Test]
     public void StopSessionWithoutStarting()
     {
@@ -98,6 +102,7 @@ public class DataTests : ZenjectUnitTestFixture
         Assert.True(repo.Fetch<TimeEntry>().FindAll(x => true).Count == 0, "found entry where there shouldnt be any");
         Assert.True(endedBeforeStarted.Item1 == OperationResult.EndedBeforeItStarted);
     }
+
     [Test]
     public void EnterValidCustomDate()
     {
@@ -105,14 +110,15 @@ public class DataTests : ZenjectUnitTestFixture
         Assert.True(repo.Fetch<TimeEntry>().FindAll(x => true).Count > 0, "didnt find entry where there should be");
         Assert.True(customDate.Item1 == OperationResult.OK);
     }
+
     [Test]
     public void ModifyEntry()
     {
         dataSave.StartTimer().Wait();
-        var entry = dataSave.CurrentOpenSession;
+        var entry = dataSave.GetOpenSession();
         Assert.False(entry == null, "current open session is null while trying modify session");
         dataSave.StopTimer().Wait();
-        Assert.True(dataSave.CurrentOpenSession == null, "current session is not closed!");
+        Assert.True(dataSave.GetOpenSession() == null, "current session is not closed!");
         var res = dataSave.ModifyEntry(entry, DateTime.Now, DateTime.Now.AddMilliseconds(4)).Wait();
         Assert.True(res == OperationResult.OK);
         Assert.True(
@@ -121,10 +127,8 @@ public class DataTests : ZenjectUnitTestFixture
             .Milliseconds == 4)
             .Count() != 0,
             "did not find any modified entries");
-
-
-
     }
+
     public override void Teardown()
     {
         repo.Database.DropCollection("TimeEntry");

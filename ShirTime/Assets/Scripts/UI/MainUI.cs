@@ -6,7 +6,7 @@ using Zenject;
 using UniRx;
 using System;
 
-public class MainUI : MonoBehaviour, IMainUICallbacks
+public class MainUI : MonoBehaviour, IMainUICallbacks 
 {
     [SerializeField]
     private Button startTime, stopTime, openCustomTimePanel;
@@ -18,17 +18,15 @@ public class MainUI : MonoBehaviour, IMainUICallbacks
     public IObservable<Unit> StopTimeClicked { get; private set; }
 
     public ReactiveProperty<TimeSpan?> TimeElapsed { get; } = new ReactiveProperty<TimeSpan?>(null);
-    public ReactiveProperty<OperationResult> ErrorStream { get; } = new ReactiveProperty<OperationResult>(OperationResult.OK);
+    public ReactiveProperty<OperationResult> ErrorStream { get; private set;} 
     [Inject]
     void Construct(ICustomTimeUI addDifferent)
     {
+        ErrorStream = new ReactiveProperty<OperationResult>();
         this.addDifferent = addDifferent;
         StartTimeClicked = startTime.OnClickAsObservable();
         StopTimeClicked = stopTime.OnClickAsObservable();
         openCustomTimePanel.OnClickAsObservable().Subscribe(x => addDifferent.Show(true));
         TimeElapsed.Subscribe(t => status.text = (t.HasValue ? "You are Doing Great!\n"+ t.Value.ToString(@"hh\:mm\:ss") : "Waiting For Session Start."));
-    }
-    void Start()
-    {
     }
 }

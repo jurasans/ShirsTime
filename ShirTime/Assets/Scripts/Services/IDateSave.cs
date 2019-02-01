@@ -2,8 +2,8 @@
 
 public interface IDateSave
 {
+    TimeEntry GetOpenSession();
     DateTime? CurrentSessionStartTime { get; }
-    TimeEntry CurrentOpenSession { get;}
     IObservable<OperationResult> StartTimer();
     IObservable<OperationResult> StopTimer();
     IObservable<Tuple<OperationResult,TimeEntry>> EnterNewCustomTimeEntry(DateTime start, DateTime end);
