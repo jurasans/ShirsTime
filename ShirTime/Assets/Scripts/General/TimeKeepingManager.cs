@@ -21,11 +21,11 @@ internal class TimeKeepingManager : IInitializable
 
     private void StopTime()
     {
-        throw new NotImplementedException();
+        dataService.StopTimer();
     }
 
     private void StartTime()
     {
-        throw new NotImplementedException();
+        dataService.StartTimer();
     }
 }

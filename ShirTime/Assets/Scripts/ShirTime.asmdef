@@ -1,0 +1,11 @@
+{
+    "name": "ShirTime",
+    "references": [
+        "UniRx",
+        "Zenject"
+    ],
+    "optionalUnityReferences": [],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false
+}
