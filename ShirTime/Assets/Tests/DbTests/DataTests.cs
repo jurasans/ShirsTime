@@ -22,7 +22,7 @@ public class DataTests : ZenjectUnitTestFixture
         Container.Inject(this);
     }
 
-    [Test(Author ="ilia" , Description ="will check all the edge cases for starting a session")]
+    [Test(Author = "ilia", Description = "will check all the edge cases for starting a session")]
     public void StartSession()
     {
         //todo:will check if there is an entry for today. if there is then it will not insert new data entry.
@@ -56,7 +56,7 @@ public class DataTests : ZenjectUnitTestFixture
     public void GetDayEntry()
     {
         dataSave.StartTimer().Wait();
-        Assert.True( dataSave.CurrentSessionStartTime.HasValue , "session started but not recognized");
+        Assert.True(dataSave.CurrentSessionStartTime.HasValue, "session started but not recognized");
         dataSave.StopTimer().Wait();
         Assert.False(dataSave.CurrentSessionStartTime.HasValue, "stopping the session leaves closed session remains.");
     }
@@ -69,9 +69,9 @@ public class DataTests : ZenjectUnitTestFixture
         var result = dataSave.StartTimer().Wait();
 
         Assert.True(result == OperationResult.OK, $"returned {result} for starting new session at the same day.");
-        Assert.True(repo.Fetch<TimeEntry>().Count()==2, "newly started session in the same day, did not open.");
-        Assert.True(repo.Fetch<TimeEntry>().All(x=>x.EntryTimeStart.HasValue) && !repo.Fetch<TimeEntry>().All(x=>x.EntryTimeEnd.HasValue),"did not make sure starting a new session would no close both for the day.");
-        
+        Assert.True(repo.Fetch<TimeEntry>().Count() == 2, "newly started session in the same day, did not open.");
+        Assert.True(repo.Fetch<TimeEntry>().All(x => x.EntryTimeStart.HasValue) && !repo.Fetch<TimeEntry>().All(x => x.EntryTimeEnd.HasValue), "did not make sure starting a new session would no close both for the day.");
+
     }
     [Test]
     public void StopSessionWithoutStarting()
@@ -110,20 +110,20 @@ public class DataTests : ZenjectUnitTestFixture
     {
         dataSave.StartTimer().Wait();
         var entry = dataSave.CurrentOpenSession;
-        Assert.False(entry==null,"current open session is null while trying modify session");
+        Assert.False(entry == null, "current open session is null while trying modify session");
         dataSave.StopTimer().Wait();
-        Assert.True(dataSave.CurrentOpenSession== null, "current session is not closed!");
-        var res = dataSave.ModifyEntry(entry,DateTime.Now,DateTime.Now.AddMilliseconds(4)).Wait();
-        Assert.True(res==OperationResult.OK);
+        Assert.True(dataSave.CurrentOpenSession == null, "current session is not closed!");
+        var res = dataSave.ModifyEntry(entry, DateTime.Now, DateTime.Now.AddMilliseconds(4)).Wait();
+        Assert.True(res == OperationResult.OK);
         Assert.True(
             repo.Fetch<TimeEntry>()
-            .Where(x=>(x.EntryTimeEnd.Value-x.EntryTimeStart.Value)
+            .Where(x => (x.EntryTimeEnd.Value - x.EntryTimeStart.Value)
             .Milliseconds == 4)
-            .Count()!=0,
+            .Count() != 0,
             "did not find any modified entries");
 
 
-        
+
     }
     public override void Teardown()
     {

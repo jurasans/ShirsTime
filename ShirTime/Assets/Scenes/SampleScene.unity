@@ -367,10 +367,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 10b60fc0f9dbdbd44a2c9d4b3f2735dc, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  startTime: {fileID: 0}
-  stopTime: {fileID: 0}
-  openCustomTimePanel: {fileID: 0}
-  status: {fileID: 0}
+  startTime: {fileID: 1169306524}
+  stopTime: {fileID: 1176669519}
+  openCustomTimePanel: {fileID: 1035809329}
+  status: {fileID: 2018901330}
 --- !u!1 &1005283691
 GameObject:
   m_ObjectHideFlags: 0
@@ -1275,6 +1275,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: cccb0513eed611c42b11d7662d74d160, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  databaseName: 
 --- !u!1 &1737858624
 GameObject:
   m_ObjectHideFlags: 0
