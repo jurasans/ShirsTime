@@ -6,8 +6,9 @@ using System;
 using System.Linq;
 using UniRx;
 using System.Threading.Tasks;
+using UnityEngine;
 
-[TestFixture]
+[TestFixture(Category ="data")]
 public class DataTests : ZenjectUnitTestFixture
 {
     [Inject]
@@ -22,7 +23,7 @@ public class DataTests : ZenjectUnitTestFixture
         Container.Inject(this);
     }
 
-    [Test(Author ="ilia" , Description ="will check all the edge cases for starting a session")]
+    [Test(Author = "ilia", Description = "will check all the edge cases for starting a session")]
     public void StartSession()
     {
         //todo:will check if there is an entry for today. if there is then it will not insert new data entry.
@@ -52,14 +53,16 @@ public class DataTests : ZenjectUnitTestFixture
         Assert.True(repo.Fetch<TimeEntry>().Count() == 1, "more then one entry was found where 1 was required.");
 
     }
+
     [Test]
     public void GetDayEntry()
     {
         dataSave.StartTimer().Wait();
-        Assert.True( dataSave.CurrentSessionStartTime.HasValue , "session started but not recognized");
+        Assert.True(dataSave.CurrentSessionStartTime.HasValue, "session started but not recognized");
         dataSave.StopTimer().Wait();
         Assert.False(dataSave.CurrentSessionStartTime.HasValue, "stopping the session leaves closed session remains.");
     }
+
     [Test]
     public void StartedNewSessionAfterClosing()
     {
@@ -69,10 +72,11 @@ public class DataTests : ZenjectUnitTestFixture
         var result = dataSave.StartTimer().Wait();
 
         Assert.True(result == OperationResult.OK, $"returned {result} for starting new session at the same day.");
-        Assert.True(repo.Fetch<TimeEntry>().Count()==2, "newly started session in the same day, did not open.");
-        Assert.True(repo.Fetch<TimeEntry>().All(x=>x.EntryTimeStart.HasValue) && !repo.Fetch<TimeEntry>().All(x=>x.EntryTimeEnd.HasValue),"did not make sure starting a new session would no close both for the day.");
-        
+        Assert.True(repo.Fetch<TimeEntry>().Count() == 2, "newly started session in the same day, did not open.");
+        Assert.True(repo.Fetch<TimeEntry>().All(x => x.EntryTimeStart.HasValue) && !repo.Fetch<TimeEntry>().All(x => x.EntryTimeEnd.HasValue), "did not make sure starting a new session would no close both for the day.");
+
     }
+
     [Test]
     public void StopSessionWithoutStarting()
     {
@@ -98,6 +102,7 @@ public class DataTests : ZenjectUnitTestFixture
         Assert.True(repo.Fetch<TimeEntry>().FindAll(x => true).Count == 0, "found entry where there shouldnt be any");
         Assert.True(endedBeforeStarted.Item1 == OperationResult.EndedBeforeItStarted);
     }
+
     [Test]
     public void EnterValidCustomDate()
     {
@@ -105,26 +110,25 @@ public class DataTests : ZenjectUnitTestFixture
         Assert.True(repo.Fetch<TimeEntry>().FindAll(x => true).Count > 0, "didnt find entry where there should be");
         Assert.True(customDate.Item1 == OperationResult.OK);
     }
+
     [Test]
     public void ModifyEntry()
     {
         dataSave.StartTimer().Wait();
-        var entry = dataSave.CurrentOpenSession;
-        Assert.False(entry==null,"current open session is null while trying modify session");
+        var entry = dataSave.GetOpenSession();
+        Assert.False(entry == null, "current open session is null while trying modify session");
         dataSave.StopTimer().Wait();
-        Assert.True(dataSave.CurrentOpenSession== null, "current session is not closed!");
-        var res = dataSave.ModifyEntry(entry,DateTime.Now,DateTime.Now.AddMilliseconds(4)).Wait();
-        Assert.True(res==OperationResult.OK);
+        Assert.True(dataSave.GetOpenSession() == null, "current session is not closed!");
+        var res = dataSave.ModifyEntry(entry, DateTime.Now, DateTime.Now.AddMilliseconds(4)).Wait();
+        Assert.True(res == OperationResult.OK);
         Assert.True(
             repo.Fetch<TimeEntry>()
-            .Where(x=>(x.EntryTimeEnd.Value-x.EntryTimeStart.Value)
+            .Where(x => (x.EntryTimeEnd.Value - x.EntryTimeStart.Value)
             .Milliseconds == 4)
-            .Count()!=0,
+            .Count() != 0,
             "did not find any modified entries");
-
-
-        
     }
+
     public override void Teardown()
     {
         repo.Database.DropCollection("TimeEntry");

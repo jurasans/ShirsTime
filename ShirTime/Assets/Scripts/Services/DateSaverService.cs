@@ -11,39 +11,35 @@ internal class DateSaverService : IDateSave, IDisposable
     private LiteCollection<TimeEntry> times;
     public DateTime? CurrentSessionStartTime
     {
-        get { return currentSession = currentSession ?? UpdateCurrentSessionState(); }
+        get
+        {
+            var session = GetOpenSession();
+            if (session == null)
+            {
+                return null;
+            }
+            return session.EntryTimeStart;
+        }
     }
 
-    public TimeEntry CurrentOpenSession { get;private set;}
-
-    private DateTime? currentSession;
     public DateSaverService(LiteDatabase db)
     {
         this.db = db;
         this.repo = new LiteRepository(db);
         times = db.GetCollection<TimeEntry>();
-        UpdateCurrentSessionState();
-
-    }
-
-    private DateTime? UpdateCurrentSessionState()
-    {
-        var currentTimeEntry = GetOpenSession();
-        if (currentTimeEntry != null && currentTimeEntry.EntryTimeStart.HasValue)
-        {
-            return currentSession = currentTimeEntry.EntryTimeStart.Value;
-        }
-        return null;
     }
 
     public TimeEntry GetOpenSession()
     {
-                
-        return CurrentOpenSession = repo.Fetch<TimeEntry>()
-                            .FirstOrDefault(x =>
-                            x.EntryTimeStart.HasValue
-                            && x.EntryTimeStart.Value.Date == DateTime.Now.Date
-                            && !x.EntryTimeEnd.HasValue);
+
+        return repo.Fetch<TimeEntry>()
+            .OrderByDescending(x => x.EntryTimeStart)
+            .FirstOrDefault(x =>
+            {
+                return x.EntryTimeStart.HasValue
+                       && x.EntryTimeStart.Value.Date == DateTime.Now.Date
+                       && !x.EntryTimeEnd.HasValue;
+            });
     }
 
     public IObservable<OperationResult> StartTimer()
@@ -57,8 +53,7 @@ internal class DateSaverService : IDateSave, IDisposable
             }
             else
             {
-                var newDoc = times.Insert(CurrentOpenSession= new TimeEntry { EntryTimeStart = DateTime.Now });
-                CurrentOpenSession.Id= newDoc;
+                times.Insert(new TimeEntry { EntryTimeStart = DateTime.Now });
                 return OperationResult.OK;
             }
         }
@@ -105,9 +100,10 @@ internal class DateSaverService : IDateSave, IDisposable
             }
             else
             {
-                var entry = repo.Fetch<TimeEntry>().First(x => x.EntryTimeStart.Value.Date == DateTime.Now.Date);
+                var entry = repo.Fetch<TimeEntry>()
+                .OrderByDescending(x => x.EntryTimeStart)
+                .First(x => x.EntryTimeStart.Value.Date == DateTime.Now.Date);
                 entry.EntryTimeEnd = DateTime.Now;
-                currentSession = null;
                 return repo.Update(entry) ? OperationResult.OK : OperationResult.NoStartedSession;
             }
         }, Scheduler.ThreadPool);
