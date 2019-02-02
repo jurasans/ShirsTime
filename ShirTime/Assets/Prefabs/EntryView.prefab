@@ -23,7 +23,7 @@ GameObject:
   - component: {fileID: 114052501599519472}
   - component: {fileID: 114181280328744024}
   m_Layer: 0
-  m_Name: Button (1)
+  m_Name: End
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -40,7 +40,7 @@ GameObject:
   - component: {fileID: 222921783333785468}
   - component: {fileID: 114303090065973594}
   m_Layer: 0
-  m_Name: Text
+  m_Name: StartT
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -73,7 +73,7 @@ GameObject:
   - component: {fileID: 222878981257167306}
   - component: {fileID: 114607235943022618}
   m_Layer: 0
-  m_Name: Text
+  m_Name: EndT
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -90,7 +90,7 @@ GameObject:
   - component: {fileID: 222468811557785004}
   - component: {fileID: 114321286482661632}
   m_Layer: 0
-  m_Name: Text
+  m_Name: Summery
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -108,7 +108,7 @@ GameObject:
   - component: {fileID: 114554680866205618}
   - component: {fileID: 114385147170548430}
   m_Layer: 0
-  m_Name: Button
+  m_Name: Start
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -170,6 +170,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 87cdd5acb03244e4297cc61ed5d1127e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  startEdit: {fileID: 114385147170548430}
+  endEdit: {fileID: 114181280328744024}
+  startT: {fileID: 114303090065973594}
+  endT: {fileID: 114607235943022618}
+  summeryT: {fileID: 114321286482661632}
 --- !u!114 &114181280328744024
 MonoBehaviour:
   m_ObjectHideFlags: 1

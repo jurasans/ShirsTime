@@ -5,24 +5,24 @@
     using ShirTime.Services;
     using ShirTime.Settings;
     using UnityEngine;
+    using Zenject;
 
     public class AddDifferentTimeUI : MonoBehaviour, ICustomTimeUI
     {
         [SerializeField]
         private GameObject mainScreenTurnOn;
         [SerializeField]
-        private readonly Transform allYourBase;
-        private List<TimeEntryView> views;
-        private TimeEntryViewMemomoryPool pool;
+        private Transform allYourBase;
+        private Dictionary<TimeEntry, TimeEntryView> views;
+        private ViewPool pool;
         private UIDefaultSettings settings;
-        private List<TimeEntry> entries;
-
-        public void Construct(TimeEntryViewMemomoryPool pool, UIDefaultSettings settings)
+        [Inject]
+        public void Construct(ViewPool pool, UIDefaultSettings settings)
         {
             this.pool = pool;
             this.settings = settings;
-            entries = new List<TimeEntry>();
-            views = new List<TimeEntryView>();
+            views = new Dictionary<TimeEntry, TimeEntryView>();
+            mainScreenTurnOn.gameObject.SetActive(false);
         }
         public void Show(bool show)
         {
@@ -31,8 +31,13 @@
 
         public void Populate(List<TimeEntry> entriesToShow)
         {
-
-
+            for (int i = 0; i < entriesToShow.Count; i++)
+            {
+                var view = pool.Rent();
+                view.UpdateData(entriesToShow[i]);
+                view.transform.SetParent(allYourBase, false);
+                views[entriesToShow[i]] = view;
+            }
         }
     }
 

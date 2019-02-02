@@ -129,6 +129,10 @@
         public ObjectId Id { get; set; }
         public DateTime? EntryTimeStart { get; set; }
         public DateTime? EntryTimeEnd { get; set; }
+        public override int GetHashCode()
+        {
+            return Id.Increment;
+        }
     }
 
 }
