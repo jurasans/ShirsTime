@@ -13,7 +13,7 @@
         {
             Container.Bind<AddDifferentTimeUI>().FromComponentInHierarchy().AsSingle();
             Container.Bind<EntryEditor>().AsSingle().NonLazy();
-            Container.BindMemoryPool<TimeEntryView, TimeEntryViewMemomoryPool>().ExpandByDoubling().FromComponentInNewPrefab(viewPrefab).AsSingle();
+            //Container.BindMemoryPool<TimeEntryView, TimeEntryViewMemomoryPool>().ExpandByDoubling().FromComponentInNewPrefab(viewPrefab).AsSingle();
 
         }
     }
