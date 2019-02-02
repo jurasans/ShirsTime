@@ -7,7 +7,7 @@
     {
         void Show(bool show);
         void Populate(List<TimeEntry> entriesToShow);
-        Dictionary<TimeEntry, TimeEntryView> Views { get; }
+        Dictionary<TimeEntry, ITimeEntryView> Views { get; }
 
     }
 }

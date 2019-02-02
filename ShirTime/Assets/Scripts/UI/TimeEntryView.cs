@@ -6,23 +6,19 @@
     using UnityEngine;
     using UnityEngine.UI;
 
-    public class TimeEntryView : MonoBehaviour
+    public class TimeEntryView : MonoBehaviour, ITimeEntryView
     {
         public Button startEdit, endEdit;
         public Text startT, endT, summeryT;
-        private IObservable<DateTime?> editStart;
-        private IObservable<DateTime?> editEnd;
-
+        public IObservable<DateTime?> EditStart { get; private set; }
+        public IObservable<DateTime?> EditEnd { get; private set; }
         public TimeEntry TimeEntry { get; set; }
-        private void Start()
-        {
-            editStart = startEdit.OnClickAsObservable().Select(x => TimeEntry.EntryTimeStart);
-            editEnd = startEdit.OnClickAsObservable().Select(x => TimeEntry.EntryTimeEnd);
 
-        }
         internal void UpdateData(TimeEntry timeEntry)
         {
             TimeEntry = timeEntry;
+            EditStart = startEdit.OnClickAsObservable().Select(x => TimeEntry.EntryTimeStart);
+            EditEnd = startEdit.OnClickAsObservable().Select(x => TimeEntry.EntryTimeEnd);
             startT.text = TimeEntry.EntryTimeStart.ToString();
             endT.text = TimeEntry.EntryTimeEnd.ToString();
             summeryT.text = (TimeEntry.EntryTimeEnd - TimeEntry.EntryTimeStart).ToString();

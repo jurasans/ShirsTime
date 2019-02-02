@@ -31,12 +31,14 @@
                         EntryTimeEnd= DateTime.Now.Add(TimeSpan.FromSeconds(1))
                     }
                 };
-                ui.Populate(entries);
-                RegisterViewsCallbacks(entries);
-
-
-
+                UpdateUI(entries);
             });
+        }
+
+        public void UpdateUI(List<TimeEntry> entries)
+        {
+            ui.Populate(entries);
+            RegisterViewsCallbacks(entries);
         }
 
         private void RegisterViewsCallbacks(List<TimeEntry> entries)
@@ -44,7 +46,15 @@
             for (int i = 0; i < entries.Count; i++)
             {
                 var view = ui.Views[entries[i]];
+                view.EditStart.Subscribe(x => { view.TimeEntry.EntryTimeStart = EditField(x); });
+                view.EditEnd.Subscribe(x => { view.TimeEntry.EntryTimeEnd = EditField(x); });
             }
+        }
+
+        private DateTime? EditField(DateTime? x)
+        {
+			
+            return DateTime.Now;
         }
     }
 }

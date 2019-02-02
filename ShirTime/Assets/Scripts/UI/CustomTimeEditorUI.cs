@@ -13,7 +13,7 @@
         private GameObject mainScreenTurnOn;
         [SerializeField]
         private Transform allYourBase;
-        public Dictionary<TimeEntry, TimeEntryView> Views { get; private set; }
+        public Dictionary<TimeEntry, ITimeEntryView> Views { get; private set; }
         private ViewPool pool;
         private UIDefaultSettings settings;
         [Inject]
@@ -21,9 +21,10 @@
         {
             this.pool = pool;
             this.settings = settings;
-            Views = new Dictionary<TimeEntry, TimeEntryView>();
+            Views = new Dictionary<TimeEntry, ITimeEntryView>();
             mainScreenTurnOn.gameObject.SetActive(false);
         }
+
         public void Show(bool show)
         {
             mainScreenTurnOn.SetActive(show);
@@ -36,7 +37,7 @@
         {
             foreach (var key in Views.Keys)
             {
-                pool.Return(Views[key]);
+                pool.Return((TimeEntryView)Views[key]);
             }
         }
 
