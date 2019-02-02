@@ -15,7 +15,7 @@
         private UIDefaultSettings settings;
         public override void InstallBindings()
         {
-            Container.Bind<AddDifferentTimeUI>().FromComponentInHierarchy().AsSingle();
+            Container.Bind<CustomTimeEditorUI>().FromComponentInHierarchy().AsSingle();
             Container.Bind<EntryEditor>().AsSingle().NonLazy();
             Container.Bind<ViewPool>().AsSingle();
             Container.BindInstance(viewPrefab).AsSingle();

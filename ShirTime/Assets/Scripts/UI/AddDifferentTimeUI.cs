@@ -7,13 +7,13 @@
     using UnityEngine;
     using Zenject;
 
-    public class AddDifferentTimeUI : MonoBehaviour, ICustomTimeUI
+    public class CustomTimeEditorUI : MonoBehaviour, ICustomTimeUI
     {
         [SerializeField]
         private GameObject mainScreenTurnOn;
         [SerializeField]
         private Transform allYourBase;
-        private Dictionary<TimeEntry, TimeEntryView> views;
+        public Dictionary<TimeEntry, TimeEntryView> Views { get; private set; }
         private ViewPool pool;
         private UIDefaultSettings settings;
         [Inject]
@@ -21,12 +21,23 @@
         {
             this.pool = pool;
             this.settings = settings;
-            views = new Dictionary<TimeEntry, TimeEntryView>();
+            Views = new Dictionary<TimeEntry, TimeEntryView>();
             mainScreenTurnOn.gameObject.SetActive(false);
         }
         public void Show(bool show)
         {
             mainScreenTurnOn.SetActive(show);
+            if (!show)
+            {
+                Depopulate();
+            }
+        }
+        private void Depopulate()
+        {
+            foreach (var key in Views.Keys)
+            {
+                pool.Return(Views[key]);
+            }
         }
 
         public void Populate(List<TimeEntry> entriesToShow)
@@ -36,7 +47,7 @@
                 var view = pool.Rent();
                 view.UpdateData(entriesToShow[i]);
                 view.transform.SetParent(allYourBase, false);
-                views[entriesToShow[i]] = view;
+                Views[entriesToShow[i]] = view;
             }
         }
     }

@@ -1,6 +1,7 @@
 ﻿namespace ShirTime.Infra
 {
     using System;
+    using System.Collections.Generic;
     using ShirTime.Services;
     using ShirTime.UI;
     using UniRx;
@@ -21,7 +22,7 @@
             {
                 ui.Show(true);
                 //mockit
-                ui.Populate(new System.Collections.Generic.List<TimeEntry>
+                var entries = new System.Collections.Generic.List<TimeEntry>
                 {
                     new TimeEntry
                     {
@@ -29,10 +30,21 @@
                         EntryTimeStart=DateTime.Now,
                         EntryTimeEnd= DateTime.Now.Add(TimeSpan.FromSeconds(1))
                     }
-                });
+                };
+                ui.Populate(entries);
+                RegisterViewsCallbacks(entries);
+
+
+
             });
         }
 
-
+        private void RegisterViewsCallbacks(List<TimeEntry> entries)
+        {
+            for (int i = 0; i < entries.Count; i++)
+            {
+                var view = ui.Views[entries[i]];
+            }
+        }
     }
 }
