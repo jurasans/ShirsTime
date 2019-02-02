@@ -1,14 +1,13 @@
-﻿using Zenject;
+﻿using System;
+using System.Linq;
+using LiteDB;
 using NUnit.Framework;
 using ShirTime.Installers;
-using LiteDB;
-using System;
-using System.Linq;
+using ShirTime.Services;
 using UniRx;
-using System.Threading.Tasks;
-using UnityEngine;
+using Zenject;
 
-[TestFixture(Category ="data")]
+[TestFixture(Category = "data")]
 public class DataTests : ZenjectUnitTestFixture
 {
     [Inject]

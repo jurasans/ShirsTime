@@ -1,4 +1,11 @@
-﻿internal interface ICustomTimeUI
+﻿namespace ShirTime.UI
 {
-    void Show(bool show);
+    using System.Collections.Generic;
+    using ShirTime.Services;
+
+    internal interface ICustomTimeUI
+    {
+        void Show(bool show);
+        void Populate(List<TimeEntry> entriesToShow);
+    }
 }

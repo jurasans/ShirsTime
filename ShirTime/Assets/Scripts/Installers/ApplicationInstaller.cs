@@ -1,12 +1,14 @@
 ﻿namespace ShirTime.Installers
 {
+    using ShirTime.Infra;
+    using ShirTime.UI;
     using UnityEngine;
     using Zenject;
 
     public class ApplicationInstaller : MonoInstaller
     {
         [SerializeField]
-        private string databaseName;
+        private readonly string databaseName;
         public override void InstallBindings()
         {
             Container.BindInterfacesAndSelfTo<TimeKeepingManager>().AsSingle().NonLazy();
