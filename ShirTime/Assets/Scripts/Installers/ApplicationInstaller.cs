@@ -8,7 +8,7 @@
     public class ApplicationInstaller : MonoInstaller
     {
         [SerializeField]
-        private readonly string databaseName;
+        private string databaseName;
         public override void InstallBindings()
         {
             Container.BindInterfacesAndSelfTo<TimeKeepingManager>().AsSingle().NonLazy();

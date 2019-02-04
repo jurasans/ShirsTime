@@ -14,11 +14,11 @@
         public IObservable<DateTime?> EditEnd { get; private set; }
         public TimeEntry TimeEntry { get; set; }
 
-        internal void UpdateData(TimeEntry timeEntry)
+        public void UpdateData(TimeEntry timeEntry)
         {
             TimeEntry = timeEntry;
             EditStart = startEdit.OnClickAsObservable().Select(x => TimeEntry.EntryTimeStart);
-            EditEnd = startEdit.OnClickAsObservable().Select(x => TimeEntry.EntryTimeEnd);
+            EditEnd = endEdit.OnClickAsObservable().Select(x => TimeEntry.EntryTimeEnd);
             startT.text = TimeEntry.EntryTimeStart.ToString();
             endT.text = TimeEntry.EntryTimeEnd.ToString();
             summeryT.text = (TimeEntry.EntryTimeEnd - TimeEntry.EntryTimeStart).ToString();

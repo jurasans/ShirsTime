@@ -46,14 +46,14 @@
             for (int i = 0; i < entries.Count; i++)
             {
                 var view = ui.Views[entries[i]];
-                view.EditStart.Subscribe(x => { view.TimeEntry.EntryTimeStart = EditField(x); });
-                view.EditEnd.Subscribe(x => { view.TimeEntry.EntryTimeEnd = EditField(x); });
+                view.EditStart.Subscribe(x => { view.TimeEntry.EntryTimeStart = EditField(x); view.UpdateData(view.TimeEntry); });
+                view.EditEnd.Subscribe(x => { view.TimeEntry.EntryTimeEnd = EditField(x); view.UpdateData(view.TimeEntry); });
             }
         }
 
         private DateTime? EditField(DateTime? x)
         {
-			
+
             return DateTime.Now;
         }
     }
