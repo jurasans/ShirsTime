@@ -10,6 +10,7 @@
         IObservable<Unit> StopTimeClicked { get; }
         IObservable<Unit> OpenEntryEditorClicked { get; }
         ReactiveProperty<TimeSpan?> TimeElapsed { get; }
+        ReactiveProperty<TimeSpan?> TotalTime { get; }
         ReactiveProperty<OperationResult> ErrorStream { get; }
     }
 

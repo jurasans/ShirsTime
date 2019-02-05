@@ -10,6 +10,7 @@
         IObservable<OperationResult> StopTimer();
         IObservable<Tuple<OperationResult, TimeEntry>> EnterNewCustomTimeEntry(DateTime start, DateTime end);
         IObservable<OperationResult> ModifyEntry(TimeEntry entry, DateTime start, DateTime end);
+        IObservable<TimeSpan> SumForCurrentMonth();
     }
 
     public enum OperationResult

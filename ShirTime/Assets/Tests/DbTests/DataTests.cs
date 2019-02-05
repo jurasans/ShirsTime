@@ -21,7 +21,22 @@ public class DataTests : ZenjectUnitTestFixture
         DataInstaller.Install(Container);
         Container.Inject(this);
     }
+    [Test]
+    public void TestQueryForTotalTime()
+    {
+        DateTime t = DateTime.Now;
+        var res = dataSave.EnterNewCustomTimeEntry(t, t.AddHours(1)).Wait();
+        Assert.AreEqual(res.Item1, OperationResult.OK);
 
+        res = dataSave.EnterNewCustomTimeEntry(t.AddDays(1), t.AddDays(1).AddHours(1)).Wait();
+        Assert.AreEqual(res.Item1, OperationResult.OK);
+
+        var all = repo.Fetch<TimeEntry>();
+        Assert.AreEqual(all.Count, 2);
+        var time = dataSave.SumForCurrentMonth().Wait();
+        Assert.True(time == TimeSpan.FromHours(2));
+
+    }
     [Test(Author = "ilia", Description = "will check all the edge cases for starting a session")]
     public void StartSession()
     {
@@ -30,7 +45,7 @@ public class DataTests : ZenjectUnitTestFixture
         var timeEntry = repo.Fetch<TimeEntry>().OrderBy(x => x.EntryTimeStart).First();
         Assert.True(timeEntry.EntryTimeStart.HasValue && !timeEntry.EntryTimeEnd.HasValue, "added wrong data");
         Assert.True((timeEntry.EntryTimeStart.Value - DateTime.Now).Seconds < 2, "too much time passed between start and test.");
-        Assert.True(result == OperationResult.OK);
+        Assert.Equals(result, OperationResult.OK);
     }
     [Test]
     public void StopSession()

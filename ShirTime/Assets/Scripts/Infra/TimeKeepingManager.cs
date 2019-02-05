@@ -27,6 +27,7 @@
             startObserver = Observer.Create<OperationResult>(OnTimerStarted);
             intervalDispatcher = Observable.Interval(TimeSpan.FromMilliseconds(500));
             LazilyUpdateClockIfInSession();
+            dataService.SumForCurrentMonth().Subscribe(x => ui.TotalTime.Value = x);
         }
 
         private void LazilyUpdateClockIfInSession()

@@ -120,6 +120,19 @@
             }
             , Scheduler.ThreadPool);
         }
+
+        public IObservable<TimeSpan> SumForCurrentMonth()
+        {
+            return Observable.Start(() =>
+            {
+                return TimeSpan.FromMinutes(
+                      repo.Fetch<TimeEntry>()
+                      .Where(x => x.EntryTimeStart.Value.Month == DateTime.Now.Month)
+                      .Sum(x => (x.EntryTimeEnd - x.EntryTimeStart).Value.TotalMinutes));
+
+            }
+            , Scheduler.ThreadPool);
+        }
     }
 
     [Serializable]
@@ -134,5 +147,6 @@
             return Id.Increment;
         }
     }
+
 
 }
