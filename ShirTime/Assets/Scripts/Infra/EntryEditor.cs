@@ -74,7 +74,6 @@
         public void Initialize()
         {
             ui.PageBack.Subscribe(_ =>
-
                 dataService.GetAllEntries(--page, 5).ObserveOnMainThread().Subscribe(UpdateUI)
             );
             ui.PageForward.Subscribe(_ =>
