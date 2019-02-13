@@ -1,6 +1,7 @@
 ﻿namespace ShirTime.Services
 {
     using System;
+    using System.Collections.Generic;
 
     public interface IDateSave
     {
@@ -11,6 +12,7 @@
         IObservable<Tuple<OperationResult, TimeEntry>> EnterNewCustomTimeEntry(DateTime start, DateTime end);
         IObservable<OperationResult> ModifyEntry(TimeEntry entry, DateTime start, DateTime end);
         IObservable<TimeSpan> SumForCurrentMonth();
+        IObservable<List<TimeEntry>> GetAllEntries(int page, int pageSize);
     }
 
     public enum OperationResult

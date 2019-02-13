@@ -1,5 +1,6 @@
 ﻿namespace ShirTime.Installers
 {
+    using FantomLib;
     using ShirTime.General;
     using ShirTime.Infra;
     using ShirTime.Settings;
@@ -16,6 +17,9 @@
         public override void InstallBindings()
         {
             Container.Bind<CustomTimeEditorUI>().FromComponentInHierarchy().AsSingle();
+			Container.Bind<TimePickerController>().FromComponentInHierarchy().AsSingle();
+            Container.Bind<DatePickerController>().FromComponentInHierarchy().AsSingle();
+
             Container.Bind<EntryEditor>().AsSingle().NonLazy();
             Container.Bind<ViewPool>().AsSingle();
             Container.BindInstance(viewPrefab).AsSingle();

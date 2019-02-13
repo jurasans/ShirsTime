@@ -1,6 +1,7 @@
 ﻿namespace ShirTime.Services
 {
     using System;
+    using System.Collections.Generic;
     using System.Linq;
     using LiteDB;
     using UniRx;
@@ -132,6 +133,19 @@
 
             }
             , Scheduler.ThreadPool);
+        }
+
+        public IObservable<List<TimeEntry>> GetAllEntries(int page, int pageSize)
+        {
+            return Observable.Start(() =>
+            {
+                return repo.Fetch<TimeEntry>()
+                    .Where(x => x.EntryTimeEnd.HasValue && x.EntryTimeStart.HasValue)
+                    .OrderBy(x => x.EntryTimeStart.Value)
+                    .Skip(page * pageSize).Take(pageSize)
+					.ToList();
+
+            }, Scheduler.ThreadPool);
         }
     }
 

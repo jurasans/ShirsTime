@@ -9,7 +9,7 @@
     public class TimeEntryView : MonoBehaviour, ITimeEntryView
     {
         public Button startEdit, endEdit;
-        public Text startT, endT, summeryT;
+        public Text dateT, startT, endT, summeryT;
         public IObservable<DateTime?> EditStart { get; private set; }
         public IObservable<DateTime?> EditEnd { get; private set; }
         public TimeEntry TimeEntry { get; set; }
@@ -19,9 +19,10 @@
             TimeEntry = timeEntry;
             EditStart = startEdit.OnClickAsObservable().Select(x => TimeEntry.EntryTimeStart);
             EditEnd = endEdit.OnClickAsObservable().Select(x => TimeEntry.EntryTimeEnd);
-            startT.text = TimeEntry.EntryTimeStart.ToString();
-            endT.text = TimeEntry.EntryTimeEnd.ToString();
-            summeryT.text = (TimeEntry.EntryTimeEnd - TimeEntry.EntryTimeStart).ToString();
+            startT.text = TimeEntry.EntryTimeStart.Value.ToShortTimeString();
+            endT.text = TimeEntry.EntryTimeEnd.Value.ToShortTimeString();
+            summeryT.text = (TimeEntry.EntryTimeEnd - TimeEntry.EntryTimeStart).Value.ToString(@"hh\:mm");
+			dateT.text = timeEntry.EntryTimeStart.Value.ToShortDateString();
         }
     }
 
