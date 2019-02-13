@@ -6,8 +6,9 @@
     using ShirTime.Services;
     using ShirTime.UI;
     using UniRx;
+    using Zenject;
 
-    internal class EntryEditor
+    internal class EntryEditor : IInitializable
     {
         private readonly ICustomTimeUI ui;
         private readonly IDateSave dataService;
@@ -26,22 +27,12 @@
             this.dataService = dataService;
             this.timePicker = timePicker;
             this.datePicker = datePicker;
-
             mainUi.OpenEntryEditorClicked.Subscribe(x =>
             {
                 ui.Show(true);
                 dataService.GetAllEntries(0, 5).ObserveOnMainThread().Subscribe(UpdateUI);
 
             });
-            ui.PageBack.Subscribe(_=>
-			
-                dataService.GetAllEntries(--page, 5).ObserveOnMainThread().Subscribe(UpdateUI)
-			);
-            ui.PageForward.Subscribe(_ =>
-                dataService.GetAllEntries(++page, 5).ObserveOnMainThread().Subscribe(UpdateUI)
-			);
-
-            newTimeObs = timePicker.OnResult.AsObservable();
         }
 
         public void UpdateUI(List<TimeEntry> entries)
@@ -78,6 +69,19 @@
         {
             var time = TimeSpan.Parse(fromPicker);
             return defaultTime.Value.Date.Add(time);
+        }
+
+        public void Initialize()
+        {
+            ui.PageBack.Subscribe(_ =>
+
+                dataService.GetAllEntries(--page, 5).ObserveOnMainThread().Subscribe(UpdateUI)
+            );
+            ui.PageForward.Subscribe(_ =>
+                dataService.GetAllEntries(++page, 5).ObserveOnMainThread().Subscribe(UpdateUI)
+            );
+
+            newTimeObs = timePicker.OnResult.AsObservable();
         }
     }
 }

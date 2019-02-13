@@ -20,7 +20,7 @@
 			Container.Bind<TimePickerController>().FromComponentInHierarchy().AsSingle();
             Container.Bind<DatePickerController>().FromComponentInHierarchy().AsSingle();
 
-            Container.Bind<EntryEditor>().AsSingle().NonLazy();
+            Container.BindInterfacesAndSelfTo<EntryEditor>().AsSingle().NonLazy();
             Container.Bind<ViewPool>().AsSingle();
             Container.BindInstance(viewPrefab).AsSingle();
             Container.BindInstance(settings).AsSingle();

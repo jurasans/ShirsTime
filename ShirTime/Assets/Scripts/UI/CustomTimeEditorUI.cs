@@ -32,7 +32,7 @@
             this.settings = settings;
             Views = new Dictionary<TimeEntry, ITimeEntryView>();
             mainScreenTurnOn.gameObject.SetActive(false);
-            xButton.onClick.AddListener(() => mainScreenTurnOn.gameObject.SetActive(false));
+            xButton.onClick.AddListener(()=>Show(false));
             PageForward = pageForward.OnClickAsObservable();
             PageBack = pageBack.OnClickAsObservable();
         }
