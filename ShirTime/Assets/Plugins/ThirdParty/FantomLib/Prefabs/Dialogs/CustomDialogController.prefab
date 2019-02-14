@@ -70,17 +70,17 @@ MonoBehaviour:
   OnResult:
     m_PersistentCalls:
       m_Calls: []
-    m_TypeName: FantomLib.CustomDialogController+ResultHandler, Assembly-CSharp, Version=0.0.0.0,
+    m_TypeName: FantomLib.CustomDialogController+ResultHandler, ThirdParty, Version=0.0.0.0,
       Culture=neutral, PublicKeyToken=null
   OnValueChanged:
     m_PersistentCalls:
       m_Calls: []
-    m_TypeName: FantomLib.CustomDialogController+ValueChangedHandler, Assembly-CSharp,
+    m_TypeName: FantomLib.CustomDialogController+ValueChangedHandler, ThirdParty,
       Version=0.0.0.0, Culture=neutral, PublicKeyToken=null
   OnCancel:
     m_PersistentCalls:
       m_Calls: []
-    m_TypeName: FantomLib.CustomDialogController+CancelHandler, Assembly-CSharp, Version=0.0.0.0,
+    m_TypeName: FantomLib.CustomDialogController+CancelHandler, ThirdParty, Version=0.0.0.0,
       Culture=neutral, PublicKeyToken=null
 --- !u!114 &114925160257252100
 MonoBehaviour:

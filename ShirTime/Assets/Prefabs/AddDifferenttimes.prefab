@@ -103,7 +103,7 @@ GameObject:
   - component: {fileID: 114341150591218734}
   - component: {fileID: 114089144251539012}
   m_Layer: 0
-  m_Name: PageForward
+  m_Name: Button (2)
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -154,7 +154,7 @@ GameObject:
   - component: {fileID: 114219750531093374}
   - component: {fileID: 114242222837493700}
   m_Layer: 0
-  m_Name: PageBack
+  m_Name: Button
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -360,7 +360,7 @@ GameObject:
   - component: {fileID: 114495228887711458}
   - component: {fileID: 114082769700359938}
   m_Layer: 0
-  m_Name: BackButton
+  m_Name: Button
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0

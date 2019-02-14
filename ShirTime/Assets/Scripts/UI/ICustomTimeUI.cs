@@ -9,6 +9,7 @@
     {
         void Show(bool show);
         void Populate(List<TimeEntry> entriesToShow);
+		void Depopulate();
         Dictionary<TimeEntry, ITimeEntryView> Views { get; }
 		IObservable<Unit> PageForward { get;}
         IObservable<Unit> PageBack { get; }

@@ -45,7 +45,7 @@
                 Depopulate();
             }
         }
-        private void Depopulate()
+        public void Depopulate()
         {
             foreach (var key in Views.Keys)
             {

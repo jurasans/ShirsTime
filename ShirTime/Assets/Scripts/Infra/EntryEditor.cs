@@ -6,6 +6,7 @@
     using ShirTime.Services;
     using ShirTime.UI;
     using UniRx;
+    using UnityEngine;
     using Zenject;
 
     internal class EntryEditor : IInitializable
@@ -31,7 +32,6 @@
             {
                 ui.Show(true);
                 dataService.GetAllEntries(0, 5).ObserveOnMainThread().Subscribe(UpdateUI);
-
             });
         }
 
@@ -49,20 +49,23 @@
                 view.EditEnd
                     .Do(date => timePicker.Show(date.Value.ToString(@"hh\:mm")))
                     .CombineLatest(newTimeObs, OnEditedTimeInPicker)
-                    .Subscribe(UpdateViewAndData(view));
+                    .Subscribe(d=>UpdateViewAndData(view,d).Subscribe(x=>Debug.Log(x)));
 
                 view.EditStart //get the current time
                     .Do(date => timePicker.Show(date.Value.ToString(@"hh\:mm"))) //show and put it in picker
                     .CombineLatest(newTimeObs, OnEditedTimeInPicker) // wait for a result from picker.-> parse it into the date context of the entry.
-                    .Subscribe(UpdateViewAndData(view));//update entry and view.
+                    .Subscribe(d=>UpdateViewAndData(view,d).Subscribe(x => Debug.Log(x)));//update entry and view.
+
 
                 view.UpdateData(view.TimeEntry);
             }
         }
 
-        private Action<DateTime> UpdateViewAndData(ITimeEntryView view)
+        private IObservable<OperationResult> UpdateViewAndData(ITimeEntryView view, DateTime v)
         {
-            return v => { view.TimeEntry.EntryTimeEnd = v; view.UpdateData(view.TimeEntry); dataService.ModifyEntry(view.TimeEntry, view.TimeEntry.EntryTimeStart.Value, view.TimeEntry.EntryTimeEnd.Value); };
+            view.TimeEntry.EntryTimeEnd = v;
+			view.UpdateData(view.TimeEntry);
+			return dataService.ModifyEntry(view.TimeEntry, view.TimeEntry.EntryTimeStart.Value, view.TimeEntry.EntryTimeEnd.Value); 
         }
 
         private DateTime OnEditedTimeInPicker(DateTime? defaultTime, string fromPicker)
@@ -74,13 +77,16 @@
         public void Initialize()
         {
             ui.PageBack.Subscribe(_ =>
-                dataService.GetAllEntries(--page, 5).ObserveOnMainThread().Subscribe(UpdateUI)
+                dataService.GetAllEntries(page=Mathf.Clamp(page--,0, 99), 5).ObserveOnMainThread().Subscribe(UpdateUI)
             );
             ui.PageForward.Subscribe(_ =>
-                dataService.GetAllEntries(++page, 5).ObserveOnMainThread().Subscribe(UpdateUI)
+                dataService.GetAllEntries(page=Mathf.Clamp(page++,0, 99), 5).ObserveOnMainThread().Subscribe(UpdateUI)
             );
-
+#if !UNITY_EDITOR
             newTimeObs = timePicker.OnResult.AsObservable();
+#else
+            newTimeObs = Observable.Interval(TimeSpan.FromSeconds(1)).Select(_=>"23:23");
+            #endif
         }
     }
 }
