@@ -16,7 +16,7 @@
         private readonly TimePickerController timePicker;
         private readonly DatePickerController datePicker;
         private IObservable<string> newTimeObs;
-		private int page=0;
+        private int page = 0;
         public EntryEditor(
             ICustomTimeUI ui,
             IMainUICallbacks mainUi,
@@ -47,14 +47,14 @@
             {
                 var view = ui.Views[entries[i]];
                 view.EditEnd
-                    .Do(date => timePicker.Show(date.Value.ToString(@"hh\:mm")))
+                    .Do(date => timePicker.Show(date.Value.ToString(@"HH\:mm")))
                     .CombineLatest(newTimeObs, OnEditedTimeInPicker)
-                    .Subscribe(d=>UpdateViewAndData(view,d).Subscribe(x=>Debug.Log(x)));
+                    .Subscribe(d => UpdateViewAndData(view, d).Subscribe(x => Debug.Log(x)));
 
                 view.EditStart //get the current time
-                    .Do(date => timePicker.Show(date.Value.ToString(@"hh\:mm"))) //show and put it in picker
+                    .Do(date => timePicker.Show(date.Value.ToString(@"HH\:mm"))) //show and put it in picker
                     .CombineLatest(newTimeObs, OnEditedTimeInPicker) // wait for a result from picker.-> parse it into the date context of the entry.
-                    .Subscribe(d=>UpdateViewAndData(view,d).Subscribe(x => Debug.Log(x)));//update entry and view.
+                    .Subscribe(d => UpdateViewAndData(view, d).Subscribe(x => Debug.Log("updated entry: " + x)));//update entry and view.
 
 
                 view.UpdateData(view.TimeEntry);
@@ -64,8 +64,8 @@
         private IObservable<OperationResult> UpdateViewAndData(ITimeEntryView view, DateTime v)
         {
             view.TimeEntry.EntryTimeEnd = v;
-			view.UpdateData(view.TimeEntry);
-			return dataService.ModifyEntry(view.TimeEntry, view.TimeEntry.EntryTimeStart.Value, view.TimeEntry.EntryTimeEnd.Value); 
+            view.UpdateData(view.TimeEntry);
+            return dataService.ModifyEntry(view.TimeEntry, view.TimeEntry.EntryTimeStart.Value, view.TimeEntry.EntryTimeEnd.Value);
         }
 
         private DateTime OnEditedTimeInPicker(DateTime? defaultTime, string fromPicker)
@@ -76,17 +76,23 @@
 
         public void Initialize()
         {
-            ui.PageBack.Subscribe(_ =>
-                dataService.GetAllEntries(page=Mathf.Clamp(page--,0, 99), 5).ObserveOnMainThread().Subscribe(UpdateUI)
-            );
-            ui.PageForward.Subscribe(_ =>
-                dataService.GetAllEntries(page=Mathf.Clamp(page++,0, 99), 5).ObserveOnMainThread().Subscribe(UpdateUI)
-            );
+            ui.PageBack.ContinueWith(_ =>
+            {
+                ui.Depopulate();
+                return dataService.GetAllEntries(page = Mathf.Clamp(page--, 0, 99), 5).ObserveOnMainThread();
+            }
+            ).Subscribe(UpdateUI); ;
+            ui.PageForward.ContinueWith(_=>
+            {
+                ui.Depopulate();
+                return dataService.GetAllEntries(page = Mathf.Clamp(page++, 0, 99), 5).ObserveOnMainThread();
+            }
+            ).Subscribe(UpdateUI); ;
 #if !UNITY_EDITOR
             newTimeObs = timePicker.OnResult.AsObservable();
 #else
-            newTimeObs = Observable.Interval(TimeSpan.FromSeconds(1)).Select(_=>"23:23");
-            #endif
+            newTimeObs = Observable.Interval(TimeSpan.FromSeconds(1)).Select(_ => "23:23");
+#endif
         }
     }
 }
