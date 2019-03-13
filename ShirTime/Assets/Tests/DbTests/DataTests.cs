@@ -45,7 +45,7 @@ public class DataTests : ZenjectUnitTestFixture
         var timeEntry = repo.Fetch<TimeEntry>().OrderBy(x => x.EntryTimeStart).First();
         Assert.True(timeEntry.EntryTimeStart.HasValue && !timeEntry.EntryTimeEnd.HasValue, "added wrong data");
         Assert.True((timeEntry.EntryTimeStart.Value - DateTime.Now).Seconds < 2, "too much time passed between start and test.");
-        Assert.Equals(result, OperationResult.OK);
+        Assert.AreEqual(result, OperationResult.OK);
     }
     [Test]
     public void StopSession()

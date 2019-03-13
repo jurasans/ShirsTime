@@ -2,6 +2,7 @@
 {
     using System;
     using System.Collections.Generic;
+    using System.Linq;
     using FantomLib;
     using ShirTime.Services;
     using ShirTime.UI;
@@ -37,6 +38,7 @@
 
         public void UpdateUI(List<TimeEntry> entries)
         {
+			Debug.Log(entries.Select(x=>x.Id.ToString()).Aggregate((acc,itm)=>acc+=";"+itm));
             ui.Populate(entries);
             RegisterViewsCallbacks(entries);
         }
@@ -79,13 +81,15 @@
             ui.PageBack.ContinueWith(_ =>
             {
                 ui.Depopulate();
-                return dataService.GetAllEntries(page = Mathf.Clamp(page--, 0, 99), 5).ObserveOnMainThread();
+                page = Mathf.Clamp(page--, 0, 99);
+                return dataService.GetAllEntries(page, 5).ObserveOnMainThread();
             }
             ).Subscribe(UpdateUI); ;
             ui.PageForward.ContinueWith(_=>
             {
                 ui.Depopulate();
-                return dataService.GetAllEntries(page = Mathf.Clamp(page++, 0, 99), 5).ObserveOnMainThread();
+                page = Mathf.Clamp(page++, 0, 99);
+                return dataService.GetAllEntries(page, 5).ObserveOnMainThread();
             }
             ).Subscribe(UpdateUI); ;
 #if !UNITY_EDITOR

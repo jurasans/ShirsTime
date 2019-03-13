@@ -36,12 +36,9 @@
 
             return repo.Fetch<TimeEntry>()
                 .OrderByDescending(x => x.EntryTimeStart)
-                .FirstOrDefault(x =>
-                {
-                    return x.EntryTimeStart.HasValue
-                           && x.EntryTimeStart.Value.Date == DateTime.Now.Date
-                           && !x.EntryTimeEnd.HasValue;
-                });
+                .FirstOrDefault(x => x.EntryTimeStart.HasValue
+								&& x.EntryTimeStart.Value.Date == DateTime.Now.Date
+								&& !x.EntryTimeEnd.HasValue);
         }
 
         public IObservable<OperationResult> StartTimer()
