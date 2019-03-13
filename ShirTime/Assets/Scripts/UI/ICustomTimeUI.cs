@@ -1,4 +1,17 @@
-﻿internal interface ICustomTimeUI
+﻿namespace ShirTime.UI
 {
-    void Show(bool show);
+    using System;
+    using System.Collections.Generic;
+    using ShirTime.Services;
+    using UniRx;
+
+    internal interface ICustomTimeUI
+    {
+        void Show(bool show);
+        void Populate(List<TimeEntry> entriesToShow);
+		void Depopulate();
+        Dictionary<TimeEntry, ITimeEntryView> Views { get; }
+		IObservable<Unit> PageForward { get;}
+        IObservable<Unit> PageBack { get; }
+    }
 }

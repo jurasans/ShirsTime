@@ -2,7 +2,8 @@
     "name": "ShirTime",
     "references": [
         "UniRx",
-        "Zenject"
+        "Zenject",
+        "ThirdParty"
     ],
     "optionalUnityReferences": [],
     "includePlatforms": [],

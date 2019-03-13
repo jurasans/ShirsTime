@@ -1,5 +1,7 @@
 ﻿namespace ShirTime.Installers
 {
+    using ShirTime.Infra;
+    using ShirTime.UI;
     using UnityEngine;
     using Zenject;
 

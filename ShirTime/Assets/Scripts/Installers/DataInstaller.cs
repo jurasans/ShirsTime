@@ -1,6 +1,7 @@
 ﻿namespace ShirTime.Installers
 {
     using LiteDB;
+    using ShirTime.Services;
     using UnityEngine;
     using Zenject;
 
@@ -17,13 +18,11 @@
             ConnectionString conString;
             if (string.IsNullOrEmpty(name))
             {
-                conString =new ConnectionString(Application.persistentDataPath + "/" + TEST_DATABASE_NAME + ".db");
-
+                conString = new ConnectionString(Application.persistentDataPath + "/" + TEST_DATABASE_NAME + ".db");
             }
             else
             {
-                conString=new ConnectionString(Application.persistentDataPath + "/" + name + ".db");
-
+                conString = new ConnectionString(Application.persistentDataPath + "/" + name + ".db");
             }
             var db = new LiteDatabase(conString);
             var repo = new LiteRepository(db);
@@ -32,5 +31,5 @@
 
 
         }
-    } 
+    }
 }

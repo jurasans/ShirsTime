@@ -1,9 +1,17 @@
-﻿using UniRx;
-using System;
-internal interface IMainUICallbacks
+﻿namespace ShirTime.UI
 {
-    IObservable<Unit> StartTimeClicked { get; }
-    IObservable<Unit> StopTimeClicked { get; }
-    ReactiveProperty<TimeSpan?> TimeElapsed { get; }
-    ReactiveProperty<OperationResult> ErrorStream { get; }
+    using System;
+    using ShirTime.Services;
+    using UniRx;
+
+    internal interface IMainUICallbacks
+    {
+        IObservable<Unit> StartTimeClicked { get; }
+        IObservable<Unit> StopTimeClicked { get; }
+        IObservable<Unit> OpenEntryEditorClicked { get; }
+        ReactiveProperty<TimeSpan?> TimeElapsed { get; }
+        ReactiveProperty<TimeSpan?> TotalTime { get; }
+        ReactiveProperty<OperationResult> ErrorStream { get; }
+    }
+
 }
