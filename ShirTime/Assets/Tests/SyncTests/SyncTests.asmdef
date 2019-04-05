@@ -1,0 +1,17 @@
+{
+    "name": "SyncTests",
+    "references": [
+        "Zenject-TestFramework",
+        "ShirTime",
+        "Zenject",
+        "UniRx"
+    ],
+    "optionalUnityReferences": [
+        "TestAssemblies"
+    ],
+    "includePlatforms": [
+        "Editor"
+    ],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false
+}
